@@ -13,6 +13,7 @@ class Fighter:
         self.defense_dice = defense_dice
         self.max_hit_blocs = 10
         self._message = ""
+        self.initiative = 0
 
 
 #    def __str__(self):
@@ -21,7 +22,8 @@ class Fighter:
     # set attack values
     def attack_opponent(self, opponent):
         attack_current = Kostka(self.attack_dice).roll() + self.attack
-        print(self.name + " attacks " + opponent.name + " with " + str(attack_current))
+        combat_message = f'{self.name} attacks {opponent.name} with {str(attack_current)}'
+        self._set_combat_Messages(combat_message)
         opponent.take_damage(attack_current)
         #return attack_current
 
@@ -39,15 +41,15 @@ class Fighter:
         # check if damage is positive
         if wound > 0:
             wounded = wound
-            attack_message = (self.name + " takes " + str(wound) + " damage")
+            combat_message = f'{self.name} takes {str(wound)} damage'
         else:
             wounded = 0
-            attack_message = (self.name + " takes no damage")
+            combat_message = f'{self.name} blocks the hit'
         self.health -= wounded
         # check if dead
         if self.is_dead():
-            attack_message = (self.name + " has died")
-        self._set_combat_Messages(attack_message,self.life_bar())
+            combat_message += f' and died'
+        self._set_combat_Messages(combat_message, self.life_bar())
 
 
 
@@ -66,8 +68,14 @@ class Fighter:
         hp_string = f"[{'#' * hit_blocks}{'_' * (self.max_hit_blocs - hit_blocks)}]"
         return hp_string
 
-    def _set_combat_Messages(self, message, hp_bar):
-        self._message = message
+    def _set_combat_Messages(self, message, hp_bar=""):
+        if hp_bar == "":
+            self._message = f'{message}'
+        else:
+            self._message = f'{message} \n {hp_bar} \n'
 
     def _get_combat_Messages(self):
-        return f'{self._message} \n {self.life_bar()}'
+        return self._message
+
+    def initiative_roll(self):
+        self.initiative = Kostka(20).roll()
